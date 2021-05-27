@@ -6,7 +6,3 @@ A new Flutter project.
 
 # Run this Project
 $ flutter run --no-sound-null-safety
-
-
-## Demo 
-
