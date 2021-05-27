@@ -1,6 +1,10 @@
+// Flutter Packages
 import 'package:flutter/material.dart';
+
+// Third Party Packages
 import 'package:provider/provider.dart';
 
+// Project Modules
 import 'package:livi_bank_test/common/util/theme_notifier.dart';
 
 class ChangeThemeWidget extends StatelessWidget {

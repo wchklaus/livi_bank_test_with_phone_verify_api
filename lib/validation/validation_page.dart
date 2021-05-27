@@ -1,8 +1,11 @@
+// Flutter Packages
 import 'package:flutter/material.dart';
 
+// Third Party Packages
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+// Project Modules
 import 'package:livi_bank_test/common/hive/boxes.dart';
 import 'package:livi_bank_test/common/model/phone_validation_result.dart';
 import 'package:livi_bank_test/validation/widgets/animated_slide_in_row.dart';
@@ -71,7 +74,7 @@ class ValidationPage extends StatelessWidget {
                         children: result
                             .map(
                               (value) => AnimatedSlideInRow(
-                                ValueKey(value.createdDate.toString()),
+                                ValueKey(value.createdDate!.toString()),
                                 result.indexOf(value),
                                 value,
                                 (index) {

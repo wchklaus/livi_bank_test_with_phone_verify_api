@@ -1,9 +1,13 @@
+// Flutter Packages
 import 'package:flutter/material.dart';
 
+// Third Party Packages
 import 'package:intl/intl.dart';
 
+// Project Modules
 import 'package:livi_bank_test/common/widgets/circle_button.dart';
 import 'package:livi_bank_test/common/model/phone_validation_result.dart';
+import 'package:livi_bank_test/home/util/phone_notifier.dart';
 
 class AnimatedSlideInRow extends StatefulWidget {
   final Key key;
@@ -122,15 +126,24 @@ class _AnimatedSlideInRowState extends State<AnimatedSlideInRow>
                       ),
                     ),
                     _bodyTextStyle(
-                      title: widget.phoneValidationResult.code!,
+                      title: widget.phoneValidationResult.countryCode == null ||
+                              widget.phoneValidationResult.countryCode!.isEmpty
+                          ? PhoneNotifier().countryCode.code!
+                          : widget.phoneValidationResult.countryCode!,
                     ),
                     _bodyTextStyle(
-                      title: widget.phoneValidationResult.dialCode!,
+                      title:
+                          widget.phoneValidationResult.countryPrefix == null ||
+                                  widget.phoneValidationResult.countryPrefix!
+                                      .isEmpty
+                              ? PhoneNotifier().countryCode.dialCode!
+                              : widget.phoneValidationResult.countryPrefix!,
                     ),
                     _bodyTextStyle(
-                      title: widget.phoneValidationResult.phoneNumber == null
-                          ? ""
-                          : widget.phoneValidationResult.phoneNumber!,
+                      title: widget.phoneValidationResult.localFormat == null ||
+                              widget.phoneValidationResult.localFormat!.isEmpty
+                          ? PhoneNotifier().phoneNum.value!
+                          : widget.phoneValidationResult.localFormat!,
                     ),
                     Expanded(
                       child: Padding(

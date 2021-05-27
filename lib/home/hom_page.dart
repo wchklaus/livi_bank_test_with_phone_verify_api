@@ -1,14 +1,17 @@
+// Flutter Packages
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
+// Third Party Packages
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+// Customized Packages
 import 'package:country_code_picker/country_code_picker.dart';
 
+// Project Packages
 import 'package:livi_bank_test/common/widgets/circle_button.dart';
 import 'package:livi_bank_test/home/util/phone_notifier.dart';
 import 'package:livi_bank_test/home/widgets/change_theme_widget.dart';
-import 'package:livi_bank_test/validation/validation_manager.dart';
-import 'package:livi_bank_test/validation/validation_page.dart';
-import 'package:twilio_phone_verify/twilio_phone_verify.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -20,6 +23,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   TextEditingController numberController = TextEditingController();
+  GlobalKey _textFormText = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -110,14 +114,14 @@ class _HomePage extends State<HomePage> {
                           style: TextStyle(fontSize: 24.0),
                         ),
                       ),
-                      Consumer<PhoneNotifier>(
-                        builder: (context, phoneValidation, child) {
+                      StatefulBuilder(
+                        key: _textFormText,
+                        builder: (context, rebuild) {
                           return TextFormField(
                             controller: numberController,
                             keyboardType: TextInputType.phone,
-                            onChanged: phoneValidation.changePhoneNum,
                             decoration: InputDecoration(
-                              errorText: phoneValidation.phoneNum.error,
+                              errorText: PhoneNotifier().phoneNum.error,
                               labelText: "手提電話號碼",
                               prefixIcon: Container(
                                 child: CountryCodePicker(
@@ -125,7 +129,10 @@ class _HomePage extends State<HomePage> {
                                     prefixStyle: TextStyle(),
                                   ),
                                   onChanged: (CountryCode code) {
-                                    phoneValidation.setCountryCode(code);
+                                    PhoneNotifier().setCountryCode(
+                                      code,
+                                      () => rebuild(() {}),
+                                    );
                                     numberController.clear();
                                   },
                                   dialogTextStyle: TextStyle(
@@ -172,39 +179,16 @@ class _HomePage extends State<HomePage> {
                           alignment: Alignment.center,
                           child: GestureDetector(
                             onTap: () async {
-                              TwilioPhoneVerify _twilioPhoneVerify;
-                              _twilioPhoneVerify = new TwilioPhoneVerify(
-                                  accountSid:
-                                      'AC94aa85bc82e708d5d6c916a37a1c2dd6', // replace with Account SID
-                                  authToken:
-                                      '682ba56458836018d4b90f7657233f29', // replace with Auth Token
-                                  serviceSid:
-                                      'IS6f67dfcd2f9d4dcb9e831f1a86277a36' // replace with Service SID
-                                  );
-                              // print(PhoneNotifier().countryCode.dialCode! +
-                              //     PhoneNotifier().phoneNum.value!);
-                              var result = await _twilioPhoneVerify.sendSmsCode(
-                                  PhoneNotifier().countryCode.dialCode! +
-                                      PhoneNotifier().phoneNum.value!);
-                              if (result['message'] == 'success') {
-                                print(result.toString());
-                                // code sent
-                              } else {
-                                // error
-                                print(
-                                    '${result['statusCode']} : ${result['message']}');
-                              }
-                              // await ValidationManager.addValidation();
-                              // if (PhoneNotifier().isValid) {
-                              //   Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //       builder: (context) {
-                              //         return ValidationPage();
-                              //       },
-                              //     ),
-                              //   );
-                              // }
+                              Response response;
+                              String path =
+                                  "${env['url']}${env['access_key']}${env['number']}${numberController.text}${env['country_code']}${PhoneNotifier().countryCode.code}${env['format']}";
+                              response = await Dio().get(path);
+                              PhoneNotifier().changePhoneNum(
+                                context,
+                                response.data,
+                                () =>
+                                    _textFormText.currentState!.setState(() {}),
+                              );
                             },
                             child: Container(
                               decoration: BoxDecoration(

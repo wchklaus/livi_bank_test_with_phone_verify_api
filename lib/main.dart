@@ -1,22 +1,30 @@
+// Dart Packages
+import 'dart:async';
+
+// Flutter Packages
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+// Third Party Packages
 import 'package:provider/provider.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
 
+// Customized Packages
 import 'package:country_code_picker/country_localizations.dart';
 
+// Project Modules
 import 'package:livi_bank_test/common/const/support_locals.dart';
 import 'package:livi_bank_test/common/const/theme.dart';
 import 'package:livi_bank_test/common/model/phone_validation_result.dart';
 import 'package:livi_bank_test/common/util/theme_notifier.dart';
 import 'package:livi_bank_test/home/hom_page.dart';
-import 'package:livi_bank_test/home/util/phone_notifier.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DotEnv.load(fileName: '.env');
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -29,9 +37,6 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(
           create: (_) => ThemeNotifier(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => PhoneNotifier(),
         ),
       ],
       child: LiviBank(),

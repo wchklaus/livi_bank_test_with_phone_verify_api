@@ -1,4 +1,7 @@
+// Third Party Packages
 import 'package:hive/hive.dart';
+
+// Project Modules
 import 'package:livi_bank_test/common/model/phone_validation_result.dart';
 
 class Boxes {

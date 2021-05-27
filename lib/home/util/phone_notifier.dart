@@ -1,6 +1,13 @@
+// Flutter Packages
+import 'package:flutter/material.dart';
+
+// Customized Packages
 import 'package:country_code_picker/country_code_picker.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:livi_bank_test/common/model/country.dart';
+
+// Project Modules
+import 'package:livi_bank_test/common/model/phone_validation_result.dart';
+import 'package:livi_bank_test/validation/validation_manager.dart';
+import 'package:livi_bank_test/validation/validation_page.dart';
 
 class ValidationItem {
   final String? value;
@@ -8,7 +15,7 @@ class ValidationItem {
   ValidationItem(this.value, this.error);
 }
 
-class PhoneNotifier extends ChangeNotifier {
+class PhoneNotifier {
   static CountryCode _countryCode = CountryCode(
     name: "Hong Kong",
     code: "HK",
@@ -24,37 +31,31 @@ class PhoneNotifier extends ChangeNotifier {
     return _phoneNum.error == null && _phoneNum.value != null ? true : false;
   }
 
-  void setCountryCode(CountryCode code) {
+  void setCountryCode(CountryCode code, Function setState) {
     _countryCode = code;
     _phoneNum = ValidationItem(null, null);
-    notifyListeners();
+    setState();
   }
 
   // Setters
-  void changePhoneNum(String value) {
-    print(countryCode.dialCode);
-    if (Country.codeToCountryMap.containsKey(countryCode.dialCode)) {
-      final country = Country.codeToCountryMap[countryCode.dialCode];
-      String? mobilePrefix;
-      country!.mobilePrefix.forEach((element) {
-        if (mobilePrefix == null) {
-          mobilePrefix = element;
-        } else {
-          mobilePrefix = mobilePrefix! + ",$element";
-        }
-      });
-      RegExp regEXp = RegExp("^[$mobilePrefix]");
-      bool isValidPhoneNum = regEXp.hasMatch(value);
-      print(isValidPhoneNum);
-      if (value.length == 8 && isValidPhoneNum) {
-        _phoneNum = ValidationItem(value, null);
-      } else {
-        _phoneNum = ValidationItem(value, '手機格式號不正確，請檢查');
-      }
-      notifyListeners();
+  void changePhoneNum(
+      BuildContext context, Map<String, dynamic> value, Function setState) {
+    PhoneValidationResult validationResult =
+        PhoneValidationResult.fromJson(value);
+    ValidationManager.addValidation(result: validationResult);
+    if (validationResult.isValid) {
+      _phoneNum = ValidationItem(validationResult.localFormat, null);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return ValidationPage();
+          },
+        ),
+      );
     } else {
-      _phoneNum = ValidationItem(value, null);
+      _phoneNum = ValidationItem(validationResult.localFormat, '手機格式號不正確，請檢查');
     }
-    notifyListeners();
+    setState();
   }
 }
